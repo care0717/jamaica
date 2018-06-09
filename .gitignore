@@ -22,4 +22,5 @@ cabal.project.local~
 .ghc.environment.*
 *~
 \#*\#
+jamaica-web.cabal
 *.txt
