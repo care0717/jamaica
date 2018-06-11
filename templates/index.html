@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+  <h1>Hello Servant!</h1>
+
+  <table id="js-todo-list" border=1>
+    <tr>
+      <th> Todo </th>
+      <th> Done </th>
+    </tr>
+  </table>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="./index.js"></script>
+  <script>
+    getAnswers(function(answers){
+      var table = $("table#js-todo-list");
+      answers.forEach(function(answer){
+        var title = $("<td />").text(answer.answer);
+        var d1 = $("<td />").text(answer.d1);
+        var tr = $("<tr />").append(title).append(d1)
+        table.append(tr);
+      });
+    });
+  </script>
+</body>
+</html>

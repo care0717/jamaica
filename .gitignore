@@ -20,7 +20,9 @@ cabal.project.local
 cabal.project.local~
 .HTF/
 .ghc.environment.*
+result
 *~
 \#*\#
 jamaica-web.cabal
 *.txt
+.DS_Store

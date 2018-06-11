@@ -50,7 +50,7 @@ Jamaica json
     deriving Eq Show Generic
 |]
 
-type JamaicaAPI  = "answers" :> Get '[JSON] [Jamaica]
+type JamaicaAPI  = "answers" :> Capture "answer" Int :> Capture "d1" Int :> Capture "d2" Int :> Capture "d3" Int :> Capture "d4" Int :> Capture "d5" Int :> Get '[JSON] [Jamaica]
             -- :<|> "users" :> Capture "name" Text :> Capture "age" Int :> Post '[JSON] ()
 
 jamaicaAPI :: Proxy JamaicaAPI
@@ -71,12 +71,12 @@ doMigration = runNoLoggingT $ runResourceT $ withMySQLConn connInfo $ runReaderT
 server :: Server JamaicaAPI
 server = getAnswers --  :<|> postAnswer 
     where
-        getAnswers = liftIO selectAnswers
+        getAnswers ans d1 d2 d3 d4 d5 = liftIO (selectAnswers ans d1 d2 d3 d4 d5)
         -- postAnswer n d1 d2 d3 d4 d5 sn se = liftIO $ insertAnswer (Jamaica n d1 d2 d3 d4 d5 sn se)
 
-selectAnswers :: IO [Jamaica]
-selectAnswers = do
-    answerList <- runDB connInfo $ selectList [] []
+selectAnswers :: Int -> Int -> Int -> Int -> Int -> Int -> IO [Jamaica]
+selectAnswers ans d1 d2 d3 d4 d5 = do
+    answerList <- runDB connInfo $ selectList [JamaicaAnswer ==. ans, JamaicaDice1 ==. d1, JamaicaDice2 ==. d2, JamaicaDice3 ==. d3, JamaicaDice4 ==. d4, JamaicaDice5 ==. d5] []
     return $ map (\(Entity _ u) -> u) answerList
 
 insertAnswer :: Jamaica -> IO ()
