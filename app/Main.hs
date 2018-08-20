@@ -1,6 +1,7 @@
 module Main where
 
 import Lib
+import JamaicaEntity as Jamaica
 import Network.Wai.Handler.Warp
 import System.Environment           (getArgs)
 

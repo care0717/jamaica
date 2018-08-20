@@ -1,12 +1,11 @@
-{-# LANGUAGE DataKinds                  #-}
-{-# LANGUAGE FlexibleInstances          #-}
-{-# LANGUAGE GADTs                      #-}
-{-# LANGUAGE MultiParamTypeClasses      #-}
-{-# LANGUAGE OverloadedStrings          #-}
-{-# LANGUAGE TypeFamilies               #-}
-{-# LANGUAGE TypeOperators              #-}
-module Lib where
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
 
+import Data.ByteString.Lazy (ByteString)
+import Network.HTTP.Media ((//), (/:))
+import qualified Data.ByteString.Lazy as B
 import           Control.Monad.Logger         (NoLoggingT (..))
 import           Control.Monad.IO.Class   (liftIO)
 import           Control.Monad.Trans.Class    (lift)
@@ -30,11 +29,22 @@ import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Servant
 import           Servant.API
+import JamaicaEntity as Jamaica
 
-import           JamaicaEntity as Jamaica
+type API = Get '[HTML] ByteString
+         :<|> "static" :> Raw
+         :<|> JamaicaAPI
 
-app :: Application
-app = serve jamaicaAPI server
+data HTML
+
+instance Accept HTML where
+  contentType _ = "text" // "html" /: ("charset", "utf-8")
+
+instance MimeRender HTML ByteString where
+  mimeRender _ bs = bs
+
+api :: Proxy API
+api = Proxy
 
 runDB :: ConnectInfo -> SqlPersistT (ResourceT (NoLoggingT IO)) a -> IO a
 runDB info = runNoLoggingT . runResourceT . withMySQLConn info . runSqlConn
@@ -42,20 +52,22 @@ runDB info = runNoLoggingT . runResourceT . withMySQLConn info . runSqlConn
 connInfo :: ConnectInfo
 connInfo = defaultConnectInfo { connectHost = "127.0.0.1", connectPort = 3306, connectUser = "test", connectPassword = "secret", connectDatabase = "jamaica" }
 
-doMigration :: IO ()
-doMigration = runNoLoggingT $ runResourceT $ withMySQLConn connInfo $ runReaderT $ runMigration migrateAll
-
-server :: Server JamaicaAPI
-server = getAnswers
+server :: ByteString -> Server API
+server indexHtml = index
+  :<|> serveDirectoryFileServer "server/static"
+  :<|> getAnswers 
     where
-        getAnswers ans d1 d2 d3 d4 d5 = liftIO (selectAnswers ans d1 d2 d3 d4 d5)
+      index              = pure indexHtml
+      getAnswers ans d1 d2 d3 d4 d5 = liftIO (selectAnswers ans d1 d2 d3 d4 d5)
 
 selectAnswers :: Int -> Int -> Int -> Int -> Int -> Int -> IO [Jamaica]
 selectAnswers ans d1 d2 d3 d4 d5 = do
     answerList <- runDB connInfo $ selectList [JamaicaAnswer ==. ans, JamaicaDice1 ==. d1, JamaicaDice2 ==. d2, JamaicaDice3 ==. d3, JamaicaDice4 ==. d4, JamaicaDice5 ==. d5] []
     return $ map (\(Entity _ u) -> u) answerList
 
-insertAnswer :: Jamaica -> IO ()
-insertAnswer = runDB connInfo . insert_
 
-
+main :: IO ()
+main = do
+  indexHtml <- B.readFile "server/templates/index.html"
+  putStrLn "Listening on port 8080"
+  run 8080 $ serve api (server indexHtml)
