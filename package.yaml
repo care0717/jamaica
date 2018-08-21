@@ -53,15 +53,6 @@ library:
   source-dirs: src
 
 executables:
-  jamaica-web-exe:
-    main:                Main.hs
-    source-dirs:         app
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - jamaica-web
   jamaica-web-server:
     main:                Main.hs
     source-dirs:         server
