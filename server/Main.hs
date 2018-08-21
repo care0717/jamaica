@@ -29,7 +29,11 @@ import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Servant
 import           Servant.API
+import           GHC.Word
 import JamaicaEntity as Jamaica
+import Lib (Env(..), runDB, connInfo, selectAnswers)
+import System.Environment (getEnv, getArgs)
+
 
 type API = Get '[HTML] ByteString
          :<|> "static" :> Raw
@@ -46,28 +50,29 @@ instance MimeRender HTML ByteString where
 api :: Proxy API
 api = Proxy
 
-runDB :: ConnectInfo -> SqlPersistT (ResourceT (NoLoggingT IO)) a -> IO a
-runDB info = runNoLoggingT . runResourceT . withMySQLConn info . runSqlConn
+doMigration :: Env -> IO ()
+doMigration env = runNoLoggingT $ runResourceT $ withMySQLConn (connInfo env) $ runReaderT $ runMigration migrateAll
 
-connInfo :: ConnectInfo
-connInfo = defaultConnectInfo { connectHost = "127.0.0.1", connectPort = 3306, connectUser = "test", connectPassword = "secret", connectDatabase = "jamaica" }
-
-server :: ByteString -> Server API
-server indexHtml = index
+server :: Env -> ByteString -> Server API
+server env indexHtml = index
   :<|> serveDirectoryFileServer "server/static"
   :<|> getAnswers 
     where
       index              = pure indexHtml
-      getAnswers ans d1 d2 d3 d4 d5 = liftIO (selectAnswers ans d1 d2 d3 d4 d5)
-
-selectAnswers :: Int -> Int -> Int -> Int -> Int -> Int -> IO [Jamaica]
-selectAnswers ans d1 d2 d3 d4 d5 = do
-    answerList <- runDB connInfo $ selectList [JamaicaAnswer ==. ans, JamaicaDice1 ==. d1, JamaicaDice2 ==. d2, JamaicaDice3 ==. d3, JamaicaDice4 ==. d4, JamaicaDice5 ==. d5] []
-    return $ map (\(Entity _ u) -> u) answerList
-
+      getAnswers ans d1 d2 d3 d4 d5 = liftIO (selectAnswers env ans d1 d2 d3 d4 d5)
 
 main :: IO ()
 main = do
+  port <- getEnv "JAMAICA_PORT"
+  user <- getEnv "JAMAICA_USER"
+  pass <- getEnv "JAMAICA_PASS"
+  database <- getEnv "JAMAICA_DATABASE"
+  let env = Env {port = (read port :: GHC.Word.Word16), user = user, pass = pass, database = database}
   indexHtml <- B.readFile "server/templates/index.html"
   putStrLn "Listening on port 8080"
-  run 8080 $ serve api (server indexHtml)
+  args <- getArgs
+  let arg1 = if (length args > 0) then Just (args !! 0) else Nothing
+  case arg1 of
+      Just "migrate" -> doMigration env
+      _ -> run 8080 $ serve api (server env indexHtml )
+  

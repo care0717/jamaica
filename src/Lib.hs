@@ -30,32 +30,23 @@ import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Servant
 import           Servant.API
-
+import           GHC.Word
 import           JamaicaEntity as Jamaica
 
-app :: Application
-app = serve jamaicaAPI server
+data Env = Env { port :: GHC.Word.Word16, user :: String, pass :: String, database :: String }
 
 runDB :: ConnectInfo -> SqlPersistT (ResourceT (NoLoggingT IO)) a -> IO a
 runDB info = runNoLoggingT . runResourceT . withMySQLConn info . runSqlConn
 
-connInfo :: ConnectInfo
-connInfo = defaultConnectInfo { connectHost = "127.0.0.1", connectPort = 3306, connectUser = "test", connectPassword = "secret", connectDatabase = "jamaica" }
+connInfo :: Env -> ConnectInfo
+connInfo env = defaultConnectInfo { connectHost = "127.0.0.1", connectPort = (port env), connectUser = (user env), connectPassword = (pass env), connectDatabase = (database env) }
 
-doMigration :: IO ()
-doMigration = runNoLoggingT $ runResourceT $ withMySQLConn connInfo $ runReaderT $ runMigration migrateAll
-
-server :: Server JamaicaAPI
-server = getAnswers
-    where
-        getAnswers ans d1 d2 d3 d4 d5 = liftIO (selectAnswers ans d1 d2 d3 d4 d5)
-
-selectAnswers :: Int -> Int -> Int -> Int -> Int -> Int -> IO [Jamaica]
-selectAnswers ans d1 d2 d3 d4 d5 = do
-    answerList <- runDB connInfo $ selectList [JamaicaAnswer ==. ans, JamaicaDice1 ==. d1, JamaicaDice2 ==. d2, JamaicaDice3 ==. d3, JamaicaDice4 ==. d4, JamaicaDice5 ==. d5] []
+selectAnswers :: Env -> Int -> Int -> Int -> Int -> Int -> Int -> IO [Jamaica]
+selectAnswers env ans d1 d2 d3 d4 d5 = do
+    answerList <- runDB (connInfo env) $ selectList [JamaicaAnswer ==. ans, JamaicaDice1 ==. d1, JamaicaDice2 ==. d2, JamaicaDice3 ==. d3, JamaicaDice4 ==. d4, JamaicaDice5 ==. d5] []
     return $ map (\(Entity _ u) -> u) answerList
 
-insertAnswer :: Jamaica -> IO ()
-insertAnswer = runDB connInfo . insert_
+insertAnswer :: Env -> Jamaica -> IO ()
+insertAnswer env = runDB (connInfo env) . insert_
 
 
