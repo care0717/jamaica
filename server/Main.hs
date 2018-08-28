@@ -67,13 +67,14 @@ main = do
   user <- getEnv "JAMAICA_USER"
   pass <- getEnv "JAMAICA_PASS"
   database <- getEnv "JAMAICA_DATABASE"
+  listenPort <- getEnv "JAMAICA_LISTENPORT"
   let env = Env {port = (read port :: GHC.Word.Word16), user = user, pass = pass, database = database}
   args <- getArgs
   let arg1 = if (length args > 0) then Just (args !! 0) else Nothing
   indexHtml <- B.readFile "server/templates/index.html"
   
-  putStrLn "Listening on port 8080"
+  putStrLn $ concat ["Listening on port ", listenPort]
   case arg1 of
       Just "migrate" -> doMigration env
-      _ -> run 8080 $ serve api (server env indexHtml)
+      _ -> run (read listenPort) $ serve api (server env indexHtml)
   
