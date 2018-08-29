@@ -3,33 +3,44 @@
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="../static/index.js"></script>
-    <script src="../static/script.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
 </head>
 <body>
-  <h1>Hello Jamaica!</h1>
-  <table id="form" border=1>
-    <tr>
-      <th> Answer </th>
-      <th> Dice1 </th>
-      <th> Dice2 </th>
-      <th> Dice3 </th>
-      <th> Dice4 </th>
-      <th> Dice5 </th>
-    </tr>
-      <tr>
-        <th> <input type="number" name="answer"> </th>
-        <th> <input type="number" name="dice1"> </th>
-        <th> <input type="number" name="dice2"> </th>
-        <th> <input type="number" name="dice3"> </th>
-        <th> <input type="number" name="dice4"> </th>
-        <th> <input type="number" name="dice5"> </th>
-      </tr>
-  </table>
-  <br>
-  <input type="button" value="送信" id="button" class="waves-effect waves-light btn">
-  <hr style="background-color: #dddddd; margin: 30px auto; color: green;" />
-  <p id="dummy"></p>
+  <div class="container">
+    <h1>Hello Jamaica!</h1>
+    <form id="form">
+      <div class="row">
+        <div class="col s10">
+          <table border=1>
+            <tr>
+              <th> Answer </th>
+            </tr>
+            <tr>
+              <th> <input type="number" name="answer" min=11 max=66 required /> </th>
+            </tr>
+            <tr>
+              <th> Dice1 </th>
+              <th> Dice2 </th>
+              <th> Dice3 </th>
+              <th> Dice4 </th>
+              <th> Dice5 </th>
+            </tr>
+            <tr>
+              <th> <input type="number" name="dice1" min=1 max=6 required /> </th>
+              <th> <input type="number" name="dice2" min=1 max=6 required /> </th>
+              <th> <input type="number" name="dice3" min=1 max=6 required /> </th>
+              <th> <input type="number" name="dice4" min=1 max=6 required /> </th>
+              <th> <input type="number" name="dice5" min=1 max=6 required /> </th>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <br>
+      <input type="submit" value="送信" id="button" class="waves-effect waves-light btn" >
+    </form>
+    <hr style="background-color: #dddddd; margin: 30px auto; color: green;" />
+    <p id="dummy"></p>
+  </div>
 </body>
 </html>
