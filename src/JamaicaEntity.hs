@@ -27,7 +27,7 @@ import           Database.Persist.TH          (mkMigrate, mkPersist,
 import           GHC.Generics
 import           Servant
 import           Servant.API
-  
+
 
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
@@ -44,7 +44,12 @@ Jamaica json
 |]
 
 type JamaicaAPI  = "answers" :> Capture "answer" Int :> Capture "d1" Int :> Capture "d2" Int :> Capture "d3" Int :> Capture "d4" Int :> Capture "d5" Int :> Get '[JSON] [Jamaica]
-            -- :<|> "users" :> Capture "name" Text :> Capture "age" Int :> Post '[JSON] ()
+                     :<|> "problem" :> Capture "level" Int :> Get '[JSON] Jamaica
 
 jamaicaAPI :: Proxy JamaicaAPI
 jamaicaAPI = Proxy
+
+
+
+
+

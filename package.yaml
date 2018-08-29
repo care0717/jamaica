@@ -48,6 +48,7 @@ dependencies:
 - persistent
 - persistent-template
 - persistent-mysql
+- random
 
 library:
   source-dirs: src

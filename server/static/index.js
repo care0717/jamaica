@@ -13,6 +13,18 @@ function getAnswers(answer, dices, onSuccess, onError) {
   );
 }
 
+function getProblem(level, onSuccess, onError) {
+  let url = "/problem/" + level
+  $.ajax(
+    {
+      url: url
+      , success: onSuccess
+      , error: onError
+      , type: 'GET'
+    }
+  );
+}
+
 function printSolution(solution_example) {
   let solution = solution_example.slice(1, 18).split(",").reverse()
   let pair = [[" (", " )"], [" [", " ]"], [" {", " }"]]
@@ -56,8 +68,16 @@ function search() {
 }
 
 function problem() {
-  console.log("test")
-  return false
+  let level = $('[name=level] option:selected').val();
+  getProblem(level, (problem) => {
+    $('#answer').val(problem.answer)
+    $('#dice1').val(problem.dice1)
+    $('#dice2').val(problem.dice2)
+    $('#dice3').val(problem.dice3)
+    $('#dice4').val(problem.dice4)
+    $('#dice5').val(problem.dice5)
+  });
+  return false;
 }
 
 $(function () {

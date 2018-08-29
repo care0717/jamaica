@@ -31,7 +31,7 @@ import           Servant
 import           Servant.API
 import           GHC.Word
 import JamaicaEntity as Jamaica
-import Lib (Env(..), runDB, connInfo, selectAnswers)
+import Lib (Env(..), runDB, connInfo, selectAnswers, selectRandomProblem)
 import System.Environment (getEnv, getArgs)
 
 
@@ -51,30 +51,48 @@ api :: Proxy API
 api = Proxy
 
 doMigration :: Env -> IO ()
-doMigration env = runNoLoggingT $ runResourceT $ withMySQLConn (connInfo env) $ runReaderT $ runMigration migrateAll
+doMigration env =
+  runNoLoggingT
+    $ runResourceT
+    $ withMySQLConn (connInfo env)
+    $ runReaderT
+    $ runMigration migrateAll
 
 server :: Env -> ByteString -> Server API
-server env indexHtml = index
-  :<|> serveDirectoryFileServer "server/static"
-  :<|> getAnswers 
-    where
-      index              = pure indexHtml
-      getAnswers ans d1 d2 d3 d4 d5 = liftIO (selectAnswers env ans d1 d2 d3 d4 d5)
+server env indexHtml =
+  index
+    :<|> serveDirectoryFileServer "server/static"
+    :<|> getAnswers
+    :<|> getProblem
+ where
+  index = pure indexHtml
+  getAnswers ans d1 d2 d3 d4 d5 = liftIO (selectAnswers env ans d1 d2 d3 d4 d5)
+  getProblem level = liftIO (selectRandomProblem env level)
 
 main :: IO ()
 main = do
-  port <- getEnv "JAMAICA_PORT"
-  user <- getEnv "JAMAICA_USER"
-  pass <- getEnv "JAMAICA_PASS"
-  database <- getEnv "JAMAICA_DATABASE"
+  port       <- getEnv "JAMAICA_PORT"
+  user       <- getEnv "JAMAICA_USER"
+  pass       <- getEnv "JAMAICA_PASS"
+  database   <- getEnv "JAMAICA_DATABASE"
   listenPort <- getEnv "JAMAICA_LISTENPORT"
-  let env = Env {port = (read port :: GHC.Word.Word16), user = user, pass = pass, database = database}
+  let env = Env
+        { port     = (read port :: GHC.Word.Word16)
+        , user     = user
+        , pass     = pass
+        , database = database
+        }
   args <- getArgs
   let arg1 = if (length args > 0) then Just (args !! 0) else Nothing
   indexHtml <- B.readFile "server/templates/index.html"
-  
+
   putStrLn $ concat ["Listening on port ", listenPort]
   case arg1 of
-      Just "migrate" -> doMigration env
-      _ -> run (read listenPort) $ serve api (server env indexHtml)
-  
+    Just "migrate" -> doMigration env
+    _              -> run (read listenPort) $ serve api (server env indexHtml)
+
+
+
+
+
+
