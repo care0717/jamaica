@@ -1,46 +1,70 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script src="../static/index.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="../static/index.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
 </head>
+
 <body>
   <div class="container">
     <h1>Hello Jamaica!</h1>
-    <form id="form">
+    <form id="problemForm">
       <div class="row">
-        <div class="col s10">
-          <table border=1>
-            <tr>
-              <th> Answer </th>
-            </tr>
-            <tr>
-              <th> <input type="number" name="answer" min=11 max=66 required /> </th>
-            </tr>
-            <tr>
-              <th> Dice1 </th>
-              <th> Dice2 </th>
-              <th> Dice3 </th>
-              <th> Dice4 </th>
-              <th> Dice5 </th>
-            </tr>
-            <tr>
-              <th> <input type="number" name="dice1" min=1 max=6 required /> </th>
-              <th> <input type="number" name="dice2" min=1 max=6 required /> </th>
-              <th> <input type="number" name="dice3" min=1 max=6 required /> </th>
-              <th> <input type="number" name="dice4" min=1 max=6 required /> </th>
-              <th> <input type="number" name="dice5" min=1 max=6 required /> </th>
-            </tr>
-          </table>
+        <div class="input-field col s3">
+          <select required>
+            <option value="" disabled selected>難易度を選択</option>
+            <option value="1">超初級</option>
+            <option value="2">初級</option>
+            <option value="3">中級</option>
+            <option value="4">上級</option>
+          </select>
+          <label>難易度</label>
+        </div>
+        <div class="col s6">
+          <input type="submit" value="Try" class="waves-effect waves-light btn">
         </div>
       </div>
-      <br>
-      <input type="submit" value="送信" id="button" class="waves-effect waves-light btn" >
+    </form>
+    <hr style="background-color: #dddddd; margin: 30px auto; color: green;" />
+    <form id="answerForm">
+      <div class="row">
+        <div class="input-field col s3">
+          <input placeholder="12" id="answer" name="answer" type="number" min=11 max=66 class="validate" required>
+          <label for="answer">Answer</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s2">
+          <input placeholder="1" id="dice1" name="dice1" type="number" min=1 max=6 class="validate" required>
+          <label for="dice1">Dice1</label>
+        </div>
+        <div class="input-field col s2">
+          <input placeholder="2" id="dice2" name="dice2" type="number" min=1 max=6 class="validate" required>
+          <label for="dice2">Dice2</label>
+        </div>
+        <div class="input-field col s2">
+          <input placeholder="3" id="dice3" name="dice3" type="number" min=1 max=6 class="validate" required>
+          <label for="dice3">Dice3</label>
+        </div>
+        <div class="input-field col s2">
+          <input placeholder="4" id="dice4" name="dice4" type="number" min=1 max=6 class="validate" required>
+          <label for="dice4">Dice4</label>
+        </div>
+        <div class="input-field col s2">
+          <input placeholder="5" id="dice5" name="dice5" type="number" min=1 max=6 class="validate" required>
+          <label for="dice5">Dice5</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col s2"><input type="submit" value="答えを問い合わせる" class="waves-effect waves-light btn"></div>
+      </div>
     </form>
     <hr style="background-color: #dddddd; margin: 30px auto; color: green;" />
     <p id="dummy"></p>
   </div>
 </body>
+
 </html>
